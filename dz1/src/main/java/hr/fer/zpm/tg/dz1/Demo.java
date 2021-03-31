@@ -11,12 +11,11 @@ import java.util.Locale;
 public class Demo {
 
     public static void main(String[] args) throws IOException {
-        long start = System.nanoTime();
         if (args.length != 1) {
             System.out.println("Program expects a path to graph definition file !");
             return;
         }
-
+        long start = System.nanoTime();
         Graph g = Graph.fromFile(args[0]);
         int path = findLongestPath(g);
         System.err.printf(Locale.US, "Runtime: %.5fs%n", (System.nanoTime() - start) * 1e-9);
@@ -70,7 +69,7 @@ public class Demo {
 
         public static Graph fromFile(String file) throws IOException {
             int vertices = 0;
-            int[][] neighbourhoodM = null;
+            int[][] adjacencyM = null;
             boolean firstRead = true;
             int row = 0;
             try (BufferedReader br = Files.newBufferedReader(Paths.get(file))) {
@@ -80,17 +79,17 @@ public class Demo {
                     line = line.strip();
                     if (firstRead) {
                         vertices = Integer.parseInt(line);
-                        neighbourhoodM = new int[vertices][vertices];
+                        adjacencyM = new int[vertices][vertices];
                         firstRead = false;
                     } else {
-                        neighbourhoodM[row++] = Arrays.stream(line.split("\\s+"))
+                        adjacencyM[row++] = Arrays.stream(line.split("\\s+"))
                                 .mapToInt(Integer::parseInt)
                                 .toArray();
                         if (row == vertices) break;
                     }
                 }
             }
-            return new Graph(vertices, neighbourhoodM);
+            return new Graph(vertices, adjacencyM);
         }
     }
 
