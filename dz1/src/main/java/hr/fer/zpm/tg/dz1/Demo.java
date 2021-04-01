@@ -10,16 +10,24 @@ import java.util.Locale;
 
 public class Demo {
 
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            final long start = System.nanoTime();
+
+            @Override
+            public void run() {
+                System.err.printf(Locale.US, "Runtime: %.5fs%n", (System.nanoTime() - start) * 1e-9);
+            }
+        }));
+    }
+
     public static void main(String[] args) throws IOException {
         if (args.length != 1) {
             System.out.println("Program expects a path to graph definition file !");
             return;
         }
-        long start = System.nanoTime();
         Graph g = Graph.fromFile(args[0]);
-        int path = findLongestPath(g);
-        System.err.printf(Locale.US, "Runtime: %.5fs%n", (System.nanoTime() - start) * 1e-9);
-        System.out.println("Longest path = " + path);
+        System.out.println(findLongestPath(g));
     }
 
     private static int findLongestPath(Graph g) {
