@@ -21,37 +21,59 @@ public class Demo {
         }));
     }
 
+    private static final StringBuilder SB = new StringBuilder();
+    private static final String EDGE = "->";
+    private static String path;
+
     public static void main(String[] args) throws IOException {
         if (args.length != 1) {
-            System.out.println("Program expects a path to graph definition file !");
+            System.out.println("Program expects a path to graph definition file!");
             return;
         }
         Graph g = Graph.fromFile(args[0]);
-        System.out.println(findLongestPath(g));
+        boolean verbose = false;
+        int longestPath = findLongestPath(g, verbose);
+        if (verbose) {
+            System.out.println(path);
+        }
+        System.out.println(longestPath);
     }
 
-    private static int findLongestPath(Graph g) {
+    private static int findLongestPath(Graph g, boolean verbose) {
         int vertices = g.getVertices();
         int[][] adjacencyM = g.getAdjacencyM();
-        int path = 0;
+        int longestPath = 0;
         BitSet visited = new BitSet(vertices);
         for (int i = 0; i < vertices; i++) {
-            path = Math.max(path, dfs(i, vertices, adjacencyM, visited));
+            int dfsPathLength = dfs(i, vertices, adjacencyM, visited, verbose);
+            if (dfsPathLength > longestPath) {
+                longestPath = dfsPathLength;
+                if (verbose) {
+                    SB.setLength(SB.length() - EDGE.length());
+                    path = SB.toString();
+                }
+            }
             if (visited.cardinality() == vertices) {
                 // if every vertex has been visited i.e Hamiltonian path
                 break;
             } else { // reset visited set
                 visited.clear();
+                if (verbose) {
+                    SB.setLength(0);
+                }
             }
         }
-        return path;
+        return longestPath;
     }
 
-    private static int dfs(int i, int vertices, int[][] adjacencyM, BitSet visited) {
+    private static int dfs(int i, int vertices, int[][] adjacencyM, BitSet visited, boolean verbose) {
         visited.set(i);
+        if (verbose) {
+            SB.append(i + 1).append("->");
+        }
         for (int j = 0; j < vertices; j++) {
             if (!visited.get(j) && adjacencyM[i][j] == 1) {
-                return 1 + dfs(j, vertices, adjacencyM, visited);
+                return 1 + dfs(j, vertices, adjacencyM, visited, verbose);
             }
         }
         return 0;
