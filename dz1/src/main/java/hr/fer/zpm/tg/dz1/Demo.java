@@ -21,9 +21,7 @@ public class Demo {
         }));
     }
 
-    private static final StringBuilder SB = new StringBuilder();
-    private static final String EDGE = "->";
-    private static String path;
+    private static boolean isHamiltonian;
 
     public static void main(String[] args) throws IOException {
         if (args.length != 1) {
@@ -31,52 +29,35 @@ public class Demo {
             return;
         }
         Graph g = Graph.fromFile(args[0]);
-        boolean verbose = false;
-        int longestPath = findLongestPath(g, verbose);
-        if (verbose) {
-            System.out.println(path);
-        }
+        int longestPath = findLongestPath(g);
         System.out.println(longestPath);
     }
 
-    private static int findLongestPath(Graph g, boolean verbose) {
+    private static int findLongestPath(Graph g) {
         int vertices = g.getVertices();
         int[][] adjacencyM = g.getAdjacencyM();
         int longestPath = 0;
         BitSet visited = new BitSet(vertices);
         for (int i = 0; i < vertices; i++) {
-            int dfsPathLength = dfs(i, vertices, adjacencyM, visited, verbose);
-            if (dfsPathLength > longestPath) {
-                longestPath = dfsPathLength;
-                if (verbose) {
-                    SB.setLength(SB.length() - EDGE.length());
-                    path = SB.toString();
-                }
-            }
-            if (visited.cardinality() == vertices) {
-                // if every vertex has been visited i.e Hamiltonian path
-                break;
-            } else { // reset visited set
-                visited.clear();
-                if (verbose) {
-                    SB.setLength(0);
-                }
-            }
+            longestPath = Math.max(longestPath, dfs(i, vertices, adjacencyM, visited));
+            // break if graph is Hamiltonian
+            if (isHamiltonian) break;
+            // reset visited set
+            visited.clear();
         }
         return longestPath;
     }
 
-    private static int dfs(int i, int vertices, int[][] adjacencyM, BitSet visited, boolean verbose) {
+    private static int dfs(int i, int vertices, int[][] adjacencyM, BitSet visited) {
         visited.set(i);
-        if (verbose) {
-            SB.append(i + 1).append("->");
-        }
-        for (int j = 0; j < vertices; j++) {
+        isHamiltonian = visited.cardinality() == vertices;
+        int longestPath = 0;
+        for (int j = 0; j < vertices && !isHamiltonian; j++) {
             if (!visited.get(j) && adjacencyM[i][j] == 1) {
-                return 1 + dfs(j, vertices, adjacencyM, visited, verbose);
+                longestPath = Math.max(longestPath, 1 + dfs(j, vertices, adjacencyM, (BitSet) visited.clone()));
             }
         }
-        return 0;
+        return longestPath;
     }
 
     private static final class Graph {
