@@ -21,7 +21,7 @@ public class Demo {
         }));
     }
 
-    private static boolean isHamiltonian;
+    private static boolean hasHamiltonianPath;
 
     public static void main(String[] args) throws IOException {
         if (args.length != 1) {
@@ -40,8 +40,8 @@ public class Demo {
         BitSet visited = new BitSet(vertices);
         for (int i = 0; i < vertices; i++) {
             longestPath = Math.max(longestPath, dfs(i, vertices, adjacencyM, visited));
-            // break if graph is Hamiltonian
-            if (isHamiltonian) break;
+            // break if graph contains Hamiltonian path
+            if (hasHamiltonianPath) break;
             // reset visited set
             visited.clear();
         }
@@ -50,9 +50,9 @@ public class Demo {
 
     private static int dfs(int i, int vertices, int[][] adjacencyM, BitSet visited) {
         visited.set(i);
-        isHamiltonian = visited.cardinality() == vertices;
+        hasHamiltonianPath = visited.cardinality() == vertices;
         int longestPath = 0;
-        for (int j = 0; j < vertices && !isHamiltonian; j++) {
+        for (int j = 0; j < vertices && !hasHamiltonianPath; j++) {
             if (!visited.get(j) && adjacencyM[i][j] == 1) {
                 longestPath = Math.max(longestPath, 1 + dfs(j, vertices, adjacencyM, (BitSet) visited.clone()));
             }
